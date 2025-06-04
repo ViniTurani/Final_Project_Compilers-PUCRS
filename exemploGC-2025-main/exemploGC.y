@@ -50,9 +50,8 @@ lcmd : lcmd cmd
 	   |
 	   ;
 	   
-cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
-  						   System.out.println("\tMOVL %EDX, _"+$1);
-					     }
+cmd : 	exp	';' {  System.out.println("\tPOPL %EDX"); // ficou um valor dangling da expressao, com o ponto virgula ele tira o valor da expressao que resultou e sobrou na pilha = nao deixa lixo assim
+				}
 			| '{' lcmd '}' { System.out.println("\t\t# terminou o bloco..."); }
 					     
 					       
@@ -137,10 +136,14 @@ restoIf : ELSE  {
 exp :  NUM  { System.out.println("\tPUSHL $"+$1); } 
     |  TRUE  { System.out.println("\tPUSHL $1"); } 
     |  FALSE  { System.out.println("\tPUSHL $0"); }      
- 		| ID   { System.out.println("\tPUSHL _"+$1); }
-    | '(' exp	')' 
-    | '!' exp       { gcExpNot(); }
-     
+ 		| ID   { System.out.println("\tPUSHL _"+$1); } // $ significaq ta empilhando o valor da variavel
+		| ID '=' exp {  System.out.println("\tPOPL %EDX"); // a = b = c = 7
+						System.out.println("\tMOVL %EDX, _"+$1); // atribui pra variavel, e bota de volta na pilha // o _ 
+
+						System.out.println("\tPUSHL %EDX"); // precisa garantir q o topo da pilha tem o resultado da expressao
+					}
+		| '(' exp	')' 
+		| '!' exp       { gcExpNot(); }
 		| exp '+' exp		{ gcExpArit('+'); }
 		| exp '-' exp		{ gcExpArit('-'); }
 		| exp '*' exp		{ gcExpArit('*'); }
