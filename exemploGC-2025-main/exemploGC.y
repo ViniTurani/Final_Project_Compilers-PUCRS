@@ -206,6 +206,37 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 		System.out.println("\tPUSHL %EAX"); // empilha o resultado da atrib
 	}
 
+	// ?: operador condicional
+	| exp '?' exp ':' exp %prec '?' {
+		// pilha:
+		// 
+		// exp falsa
+		// exp true
+		// cond
+
+		// nao usa a pilha por ser em 1 redução apenas
+		int rotFalse = proxRot;   // label para exp em caso f
+		int rotEnd   = proxRot + 1;
+		proxRot += 2;
+
+		System.out.println("\tPOPL %EBX");        // EBX = valorFalse
+		System.out.println("\tPOPL %EAX");        // EAX = valorTrue
+		System.out.println("\tPOPL %ECX");        // ECX = cond
+
+		System.out.println("\tCMPL $0, %ECX");    // é falso?
+		System.out.printf("\tJE rot_%02d\n", rotFalse);
+
+		// verdadeiro
+		System.out.println("\tPUSHL %EAX");       // empilha valorTrue
+		System.out.printf("\tJMP rot_%02d\n", rotEnd);
+
+		// falso
+		System.out.printf("rot_%02d:\n", rotFalse);
+		System.out.println("\tPUSHL %EBX");       // empilha valorFalse
+
+		// terminou tudo
+		System.out.printf("rot_%02d:\n", rotEnd);
+	}
 	;
 
 

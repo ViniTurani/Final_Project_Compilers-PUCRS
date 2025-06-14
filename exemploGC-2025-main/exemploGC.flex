@@ -49,8 +49,8 @@ NL  = \n | \r | \r\n
 "{" |
 "}" |
 "," |
-/* "?" | // para o operador condicional ternário
-":" | */
+"?" | // para o operador condicional ternário
+":" |
 "\[" | 
 "\]"    { return (int) yycharat(0); }
 
