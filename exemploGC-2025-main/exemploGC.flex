@@ -49,6 +49,8 @@ NL  = \n | \r | \r\n
 "{" |
 "}" |
 "," |
+/* "?" | // para o operador condicional ternário
+":" | */
 "\[" | 
 "\]"    { return (int) yycharat(0); }
 
@@ -63,8 +65,14 @@ NL  = \n | \r | \r\n
 "&&"   { return Parser.AND; }
 "||"   {  return Parser.OR; }
 
-int    { return Parser.INT;     }
-float  { return Parser.FLOAT;   }
+"++" {return Parser.INC;}
+"--" {return Parser.DEC;}
+
+"+=" {return Parser.PLUSEQ;}
+
+
+int    { return Parser.INT; }
+float  { return Parser.FLOAT; }
 bool   { return Parser.BOOL; }
 void   { return Parser.VOID; }
 main   { return Parser.MAIN; }

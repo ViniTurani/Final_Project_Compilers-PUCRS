@@ -6,18 +6,24 @@
 %}
  
 
-%token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, READ, WRITE, IF, ELSE
-%token WHILE,TRUE, FALSE, IF, ELSE
+%token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, IF, ELSE, WHILE
+%token READ, WRITE
+%token TRUE, FALSE
 %token EQ, LEQ, GEQ, NEQ 
 %token AND, OR
 
-%right '='
+// adicionados para o t3
+%token INC, DEC // ++ -- 
+%token PLUSEQ // +=
+
+%right '=' PLUSEQ
+%right '?' ':' // prec menor que OR e maior que =
 %left OR
 %left AND
 %left  '>' '<' EQ LEQ GEQ NEQ
 %left '+' '-'
 %left '*' '/' '%'
-%left '!' 
+%left '!' INC DEC // operadores unários
 
 %type <sval> ID
 %type <sval> LIT
@@ -29,138 +35,178 @@
 
 prog : { geraInicio(); } dList mainF { geraAreaDados(); geraAreaLiterais(); } ;
 
-mainF : VOID MAIN '(' ')'   { System.out.println("_start:"); }
-        '{' lcmd  { geraFinal(); } '}'
-         ; 
+mainF : VOID MAIN '(' ')'   { 
+		System.out.println("_start:"); 
+	}		
+		'{' lcmd  { geraFinal(); } '}'
+	; 
 
 dList : decl dList | ;
 
-decl : type ID ';' {  TS_entry nodo = ts.pesquisa($2);
-    	                if (nodo != null) 
-                            yyerror("(sem) variavel >" + $2 + "< jah declarada");
-                        else ts.insert(new TS_entry($2, $1)); }
-      ;
+decl : type ID ';' {  
+	TS_entry nodo = ts.pesquisa($2);
+	if (nodo != null) 
+		yyerror("(sem) variavel >" + $2 + "< jah declarada");
+	else ts.insert(new TS_entry($2, $1)); 
+}
+	;
 
 type : INT    { $$ = INT; }
-     | FLOAT  { $$ = FLOAT; }
-     | BOOL   { $$ = BOOL; }
-     ;
+	| FLOAT  { $$ = FLOAT; }
+	| BOOL   { $$ = BOOL; }
+	;
 
 lcmd : lcmd cmd
-	   |
-	   ;
+	|
+	;
 	   
-cmd : 	exp	';' {  System.out.println("\tPOPL %EDX"); // ficou um valor dangling da expressao, com o ponto virgula ele tira o valor da expressao que resultou e sobrou na pilha = nao deixa lixo assim
-				}
-			| '{' lcmd '}' { System.out.println("\t\t# terminou o bloco..."); }
-					     
-					       
-      | WRITE '(' LIT ')' ';' { strTab.add($3);
-                                System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
-				System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
-                                System.out.println("\tCALL _writeLit"); 
-				System.out.println("\tCALL _writeln"); 
-                                strCount++;
-				}
-      
-	  | WRITE '(' LIT 
-                              { strTab.add($3);
-                                System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
-				System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
-                                System.out.println("\tCALL _writeLit"); 
-				strCount++;
-				}
+cmd : 	exp	';' {  
+		System.out.println("\tPOPL %EDX"); // ficou um valor dangling da expressao, com o ponto virgula ele tira o valor da expressao que resultou e sobrou na pilha = nao deixa lixo assim
+	}
 
-                    ',' exp ')' ';' 
-			{ 
-			 System.out.println("\tPOPL %EAX"); 
-			 System.out.println("\tCALL _write");	
-			 System.out.println("\tCALL _writeln"); 
-                        }
-         
-     | READ '(' ID ')' ';'								
-								{
-									System.out.println("\tPUSHL $_"+$3);
-									System.out.println("\tCALL _read");
-									System.out.println("\tPOPL %EDX");
-									System.out.println("\tMOVL %EAX, (%EDX)");
-									
-								}
+	| '{' lcmd '}' { 
+		System.out.println("\t\t# terminou o bloco..."); 		
+	}		
+
+	| WRITE '(' LIT ')' ';' { 
+		strTab.add($3);
+		System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
+		System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
+		System.out.println("\tCALL _writeLit"); 
+		System.out.println("\tCALL _writeln"); 
+		strCount++;
+	}
+      
+	| WRITE '(' LIT { 
+		strTab.add($3);
+		System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
+		System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
+		System.out.println("\tCALL _writeLit"); 
+		strCount++;
+	}
+		',' exp ')' ';' {
+			System.out.println("\tPOPL %EAX"); 
+			System.out.println("\tCALL _write");	
+			System.out.println("\tCALL _writeln"); 
+		}
+		
+	| READ '(' ID ')' ';' {
+		System.out.println("\tPUSHL $_"+$3);
+		System.out.println("\tCALL _read");
+		System.out.println("\tPOPL %EDX");
+		System.out.println("\tMOVL %EAX, (%EDX)");
+	}
          
     | WHILE {
-					pRot.push(proxRot);  proxRot += 2;
-					System.out.printf("rot_%02d:\n",pRot.peek());
-				  } 
-			 '(' exp ')' {
-			 							System.out.println("\tPOPL %EAX   # desvia se falso...");
-											System.out.println("\tCMPL $0, %EAX");
-											System.out.printf("\tJE rot_%02d\n", (int)pRot.peek()+1);
-										} 
-				cmd		{
-				  		System.out.printf("\tJMP rot_%02d   # terminou cmd na linha de cima\n", pRot.peek());
-							System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
-							pRot.pop();
-							}  
-							
-			| IF '(' exp {	
-											pRot.push(proxRot);  proxRot += 2;
-															
-											System.out.println("\tPOPL %EAX");
-											System.out.println("\tCMPL $0, %EAX");
-											System.out.printf("\tJE rot_%02d\n", pRot.peek());
-										}
-								')' cmd 
+		pRot.push(proxRot);  proxRot += 2;
 
-             restoIf {
-											System.out.printf("rot_%02d:\n",pRot.peek()+1);
-											pRot.pop();
-										}
-     ;
+		System.out.printf("rot_%02d:\n",pRot.peek());
+	} 
+		'(' exp ')' {
+			System.out.println("\tPOPL %EAX   # desvia se falso...");
+			System.out.println("\tCMPL $0, %EAX");
+			System.out.printf("\tJE rot_%02d\n", (int)pRot.peek()+1);
+		} 
+			cmd	{
+				System.out.printf("\tJMP rot_%02d   # terminou cmd na linha de cima\n", pRot.peek());
+				System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
+				pRot.pop();
+			}  
+							
+	| IF '(' exp {	
+		pRot.push(proxRot);  proxRot += 2;
+						
+		System.out.println("\tPOPL %EAX");
+		System.out.println("\tCMPL $0, %EAX");
+		System.out.printf("\tJE rot_%02d\n", pRot.peek());
+	}
+		')' cmd restoIf {
+			System.out.printf("rot_%02d:\n",pRot.peek()+1);
+			pRot.pop();
+		}
+	;
      
      
 restoIf : ELSE  {
-											System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
-											System.out.printf("rot_%02d:\n",pRot.peek());
-								
-										} 							
-							cmd  
-							
-							
-		| {
-		    System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
-				System.out.printf("rot_%02d:\n",pRot.peek());
-				} 
-		;										
+		System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
+		System.out.printf("rot_%02d:\n",pRot.peek());
+	} cmd 
+					
+	| {
+		System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
+		System.out.printf("rot_%02d:\n",pRot.peek());
+	} 
+	;										
 
 
 exp :  NUM  { System.out.println("\tPUSHL $"+$1); } 
     |  TRUE  { System.out.println("\tPUSHL $1"); } 
     |  FALSE  { System.out.println("\tPUSHL $0"); }      
- 		| ID   { System.out.println("\tPUSHL _"+$1); } // $ significaq ta empilhando o valor da variavel
-		| ID '=' exp {  System.out.println("\tPOPL %EDX"); // a = b = c = 7
-						System.out.println("\tMOVL %EDX, _"+$1); // atribui pra variavel, e bota de volta na pilha // o _ 
+	| ID   { System.out.println("\tPUSHL _"+$1); } // $ significaq ta empilhando o valor da variavel
+	| ID '=' exp {  
+		System.out.println("\tPOPL %EDX"); // a = b = c = 7
+		System.out.println("\tMOVL %EDX, _"+$1); // atribui pra variavel, e bota de volta na pilha o _ID 
+		System.out.println("\tPUSHL %EDX"); // precisa garantir q o topo da pilha tem o resultado da expressao
+	}
+	| '(' exp	')' 
+	| '!' exp       { gcExpNot(); }
+	| exp '+' exp		{ gcExpArit('+'); }
+	| exp '-' exp		{ gcExpArit('-'); }
+	| exp '*' exp		{ gcExpArit('*'); }
+	| exp '/' exp		{ gcExpArit('/'); }
+	| exp '%' exp		{ gcExpArit('%'); }
+																		
+	| exp '>' exp		{ gcExpRel('>'); }
+	| exp '<' exp		{ gcExpRel('<'); }											
+	| exp EQ exp		{ gcExpRel(EQ); }											
+	| exp LEQ exp		{ gcExpRel(LEQ); }											
+	| exp GEQ exp		{ gcExpRel(GEQ); }											
+	| exp NEQ exp		{ gcExpRel(NEQ); }											
+											
+	| exp OR exp		{ gcExpLog(OR); }											
+	| exp AND exp		{ gcExpLog(AND); }											
+	
+	// pos e pre incremento/decremento
+	| ID INC { 
+		// pos incremento = topo da pilha tem o valor de id antes do incremento
+		System.out.println("\tMOVL _"+$1+", %EAX"); // carrega o valor atual de id
+		System.out.println("\tPUSHL %EAX"); // empilha ja o valor da id
+		System.out.println("\tINCL %EAX"); // id + 1
+		System.out.println("\tMOVL %EAX, _"+$1); // salva o valor incrementado
+	}
+	| ID DEC {
+		// pos decremento = topo da pilha tem o valor de id antes do decrementio
+		System.out.println("\tMOVL _"+$1+", %EAX"); // carrega o valor atual de id
+		System.out.println("\tPUSHL %EAX"); // empilha ja o valor da id
+		System.out.println("\tDECL %EAX"); // id - 1
+		System.out.println("\tMOVL %EAX, _"+$1); // salva o valor incrementado
+	}
+	| INC ID {
+		// pre incremento = topo da pilha tem o valor de id atualizado
+		System.out.println("\tMOVL _"+$2+", %EAX"); // carrega o valor atual de id
+		System.out.println("\tINCL %EAX"); // id + 1
+		System.out.println("\tMOVL %EAX, _"+$2); // atualiza o id
+		System.out.println("\tPUSHL %EAX"); // expr devolve novo valor
+	}
+	| DEC ID { 
+		// pos decremento = topo da pilha tem o valor de id atualizado
+		System.out.println("\tMOVL _"+$2+", %EAX"); // carrega o valor atual de id
+		System.out.println("\tDECL %EAX"); // id - 1
+		System.out.println("\tMOVL %EAX, _"+$2); // atualiza o id
+		System.out.println("\tPUSHL %EAX"); // expr devolve novo valor
+	}
 
-						System.out.println("\tPUSHL %EDX"); // precisa garantir q o topo da pilha tem o resultado da expressao
-					}
-		| '(' exp	')' 
-		| '!' exp       { gcExpNot(); }
-		| exp '+' exp		{ gcExpArit('+'); }
-		| exp '-' exp		{ gcExpArit('-'); }
-		| exp '*' exp		{ gcExpArit('*'); }
-		| exp '/' exp		{ gcExpArit('/'); }
-		| exp '%' exp		{ gcExpArit('%'); }
-																			
-		| exp '>' exp		{ gcExpRel('>'); }
-		| exp '<' exp		{ gcExpRel('<'); }											
-		| exp EQ exp		{ gcExpRel(EQ); }											
-		| exp LEQ exp		{ gcExpRel(LEQ); }											
-		| exp GEQ exp		{ gcExpRel(GEQ); }											
-		| exp NEQ exp		{ gcExpRel(NEQ); }											
-												
-		| exp OR exp		{ gcExpLog(OR); }											
-		| exp AND exp		{ gcExpLog(AND); }											
-		
-		;							
+	// += 
+	| ID PLUSEQ exp {
+		// no fim o valor da atribuicao deve ser colocado no topo da pilha (assim como feito em = normal)
+		System.out.println("\tMOVL _"+$1+", %EAX"); // EAX(a) = ID
+		System.out.println("\tPOPL %EBX"); // EBX(b) = valor de exp que tava no topo da pilha
+		System.out.println("\tADDL %EBX, %EAX"); // EAX = a + b
+		System.out.println("\tMOVL %EAX, _"+$1); // ID = ID + exp
+		System.out.println("\tPUSHL %EAX"); // empilha o resultado da atrib
+	}
+
+	;
 
 
 %%
@@ -226,7 +272,7 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 
 							
 		void gcExpArit(int oparit) {
- 				System.out.println("\tPOPL %EBX");
+			System.out.println("\tPOPL %EBX");
    			System.out.println("\tPOPL %EAX");
 
    		switch (oparit) {
@@ -296,7 +342,7 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 	}
 
    private void geraInicio() {
-			System.out.println(".text\n\n#\t nome COMPLETO e matricula dos componentes do grupo...\n#\n"); 
+			System.out.println(".text\n\n#\tKristen Karsburg Arguello - 22103087\nRamiro Nilson Barros - <matricula>\nVinícius Conte Turani - <matricula>\n#\n"); 
 			System.out.println(".GLOBL _start\n\n");  
    }
 
