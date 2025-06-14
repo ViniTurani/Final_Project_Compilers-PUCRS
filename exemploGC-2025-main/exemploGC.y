@@ -16,6 +16,7 @@
 %token INC, DEC // ++ -- 
 %token PLUSEQ // +=
 %token DO
+%token BREAK, CONTINUE
 
 %right '=' PLUSEQ
 %right '?' ':' // prec menor que OR e maior que =
@@ -99,7 +100,9 @@ cmd : 	exp	';' {
 	}
          
     | WHILE {
-		pRot.push(proxRot);  proxRot += 2;
+		pRot.push(proxRot);  
+		pLoop.push(proxRot); // empilha o inicio do loop para break e continue dps
+		proxRot += 2;
 
 		System.out.printf("rot_%02d:\n",pRot.peek());
 	} 
@@ -112,6 +115,7 @@ cmd : 	exp	';' {
 				System.out.printf("\tJMP rot_%02d	 # terminou cmd na linha de cima\n", pRot.peek());
 				System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
 				pRot.pop();
+				pLoop.pop();
 			}  
 							
 	| IF '(' exp {	
@@ -122,37 +126,49 @@ cmd : 	exp	';' {
 		System.out.printf("\tJE rot_%02d\n", pRot.peek());
 	}
 		')' cmd restoIf {
-			System.out.printf("rot_%02d:\n",pRot.peek()+1);
+			System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
 			pRot.pop();
 		}
 
 	| DO {
-		pRot.push(proxRot); // guarda o rotulo do comando
-		-- proxRot += 2;
-		proxRot++; // como ta usando so um rotulo, so precisa pular 1
+		int rotCorpo = proxRot;
+		int rotCond = proxRot + 1; // quando da continue, tem que vir pra ca
+		int rotFim = proxRot + 2;
 
-		System.out.printf("rot_%02d: # do cmd\n", pRot.peek());
+		pRot.push(proxRot); // guarda o rotulo do comando/corpo
+		pLoop.push(rotCond); // para continue e break
+
+		proxRot += 3; // precisa de 3 = body, condicao, e fim
+
+		System.out.printf("rot_%02d: # corpo do-while\n", rotCorpo);
 	} 
 		cmd WHILE {
 			System.out.println("# terminou o comando `do`, comecando a expressao do while...")
+			System.out.printf("rot_%02d: # exp do-while\n", pLoop.peek()); //rotCond
 		} '(' exp ')' {
-			
-			System.out.println("\t# terminou a exp do while em cima, comecando salto condicional...")
+			System.out.println("\t# terminou a exp do-while em cima, comecando salto condicional...")
 			System.out.println("\tPOPL %EAX"); // pega o valor de exp deixado no topo da pilha
 			System.out.println("\tCMPL $0, %EAX"); // ve se exp se tornou false
 
-			System.out.printf("\tJNE rot_%02d 	# caso exp true, volta pro rot do\n", pRot.peek());
+			System.out.printf("\tJNE rot_%02d 	# caso exp true, volta pro rot 'do'\n", pRot.peek());
+
+			System.out.printf("rot_%02d:\n", (int)pLoop.peek()+1); // rotulo de saida para facilitar break dps
+			pRot.pop();
+			pLoop.pop();
 		} ';'
+
+	| BREAK ';' { geraBreak(); }
+	| CONTINUE ';' { geraContinue(); }
 	;
      
      
 restoIf : ELSE  {
-		System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
+		System.out.printf("\tJMP rot_%02d\n", (int)pRot.peek()+1);
 		System.out.printf("rot_%02d:\n",pRot.peek());
 	} cmd 
 					
 	| {
-		System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
+		System.out.printf("\tJMP rot_%02d\n", (int)pRot.peek()+1);
 		System.out.printf("rot_%02d:\n",pRot.peek());
 	} 
 	;										
@@ -271,6 +287,10 @@ private ArrayList<String> strTab = new ArrayList<String>();
 private Stack<Integer> pRot = new Stack<Integer>();
 private int proxRot = 1;
 
+private Stack<Integer> pLoop = new Stack<Integer>();
+// pilha extra para loops criadas para break e continue nao serem aceitos em if/else
+// mesmo controle sendo o proxRot para nao ter dois rotulos iguais
+
 public static int ARRAY = 100;
 
 
@@ -381,6 +401,23 @@ public void gcExpNot(){
 	System.out.println("\t\tNEGL %EAX" );
 	System.out.println("\t\tPUSHL %EAX");
 }
+
+public void geraBreak() {
+	if (pLoop.empty()) {
+		yyerror("`break` colocado fora de loop!");
+	} else {
+        System.out.printf("\tJMP rot_%02d\t # break\n", (int)pLoop.peek()+1);
+	}
+}
+
+public void geraContinue() {
+	if (pLoop.empty()) {
+		yyerror("`continue` fora de loop!");
+	} else {
+		System.out.printf("\tJMP rot_%02d\t # continue\n", pLoop.peek());
+	}
+}
+
 
 private void geraInicio() {
 	System.out.println(".text\n\n#\tKristen Karsburg Arguello - 22103087\n# Ramiro Nilson Barros - <matricula>\n# Vinícius Conte Turani - <matricula>\n\n"); 
