@@ -159,7 +159,6 @@ cmd : 	exp	';' {
 		} ';'
 	// for (init; cond; incr) corpo
 	| FOR '(' expOuVazio { // init
-		// pós init
 		int rotCond = proxRot;
 		int rotCorpo = proxRot + 1;
 		int rotIncr = proxRot + 2;
@@ -167,26 +166,22 @@ cmd : 	exp	';' {
 		proxRot += 4;
 
 		pRot.push(rotCond); // tem todos
-		pLoop.push(rotIncr); // continue = rotCond + 2; break = rotCond + 3;
+		pLoop.push(rotIncr); // continue = incr (rotIncr) ; break = fim (rotFim);
 		
 		System.out.printf("rot_%02d:\n", pRot.peek()); // rotulo condicao para proximo codigo
-	}';' expOuVazio { // cond
-		// condicao para manter ativo o laco
-		System.out.println("\tPOPL %EAX   # desvia se falso...");
-		System.out.println("\tCMPL $0, %EAX");
+	}';' condOuVazio { // cond
+		System.out.println("\tPOPL %EAX"); // pega o valor da condicao
+		System.out.println("\tCMPL $0, %EAX \t # desvia se falso, ou vai pro corpo");
 		System.out.printf("\tJE rot_%02d\n", (int)pLoop.peek()+1); //vai pro fim
-		System.out.printf("\tJNE rot_%02d\n", (int)pRot.peek()+1);  // vai pro corpo
+		System.out.printf("\tJMP rot_%02d\n", (int)pRot.peek()+1);  // vai pro corpo
 
 		System.out.printf("rot_%02d:\n", pLoop.peek()); // rotulo para incr
 	} ';' expOuVazio { // incr
-		System.out.println("\tPOPL %EAX   # descarta o valor do incremento...");	
 		// pular para cond independentemente
 		System.out.printf("\tJMP rot_%02d\n", pRot.peek());
-
 		System.out.printf("rot_%02d:\n", (int)pRot.peek()+1); // rotulo para corpo
 	} ')' cmd {
 		System.out.printf("\tJMP rot_%02d\n", pLoop.peek()); // pula para incr
-
 		System.out.printf("rot_%02d:\n", (int)pLoop.peek()+1); // rotulo para o fim
 		pRot.pop();
 		pLoop.pop();
@@ -210,10 +205,13 @@ restoIf : ELSE  {
 
 
 expOuVazio: exp {
-		System.out.println("\tPOPL %EDX"); // descarta o que foi empilhado, não utilizado 
+		System.out.println("\tPOPL %EDX\t # descarta o que foi empilhado"); // descarta o que foi empilhado, não utilizado 
 	}
 	| /* vazio */
 	;
+
+condOuVazio: exp 
+	| /* vazio */ { System.out.println("\tPUSHL $1"); // caso expressao vazia, coloca 1 pra sempre ser true }
 
 exp :  NUM  { System.out.println("\tPUSHL $"+$1); } 
     |  TRUE  { System.out.println("\tPUSHL $1"); } 
