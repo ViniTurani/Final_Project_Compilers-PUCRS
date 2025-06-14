@@ -157,7 +157,7 @@ cmd : 	exp	';' {
 			pRot.pop();
 			pLoop.pop();
 		} ';'
-	// for (init; cond; incr) corpo
+		
 	| FOR '(' expOuVazio { // init
 		int rotCond = proxRot;
 		int rotCorpo = proxRot + 1;
