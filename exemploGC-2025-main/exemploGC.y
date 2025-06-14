@@ -280,36 +280,25 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 		System.out.println("\tPUSHL %EAX"); // empilha o resultado da atrib
 	}
 
-	// ?: operador condicional
-	| exp '?' exp ':' exp %prec '?' {
-		// pilha:
-		// 
-		// exp falsa
-		// exp true
-		// cond
-
-		// nao usa a pilha por ser em 1 redução apenas
-		int rotFalse = proxRot;   // label para exp em caso f
-		int rotEnd   = proxRot + 1;
+	// ?: operador condicional 
+	| exp '?' { // cond (ja na pilha)                             
+		int rotFalse = proxRot;  
+		int rotEnd   = rotFalse + 1;
+		pRot.push(rotFalse); 
 		proxRot += 2;
 
-		System.out.println("\tPOPL %EBX");        // EBX = valorFalse
-		System.out.println("\tPOPL %EAX");        // EAX = valorTrue
-		System.out.println("\tPOPL %ECX");        // ECX = cond
-
-		System.out.println("\tCMPL $0, %ECX");    // é falso?
-		System.out.printf("\tJE rot_%02d\n", rotFalse);
-
-		// verdadeiro
-		System.out.println("\tPUSHL %EAX");       // empilha valorTrue
-		System.out.printf("\tJMP rot_%02d\n", rotEnd);
-
-		// falso
-		System.out.printf("rot_%02d:\n", rotFalse);
-		System.out.println("\tPUSHL %EBX");       // empilha valorFalse
-
-		// terminou tudo
-		System.out.printf("rot_%02d:\n", rotEnd);
+		// testa a condicao pra ver pra onde vai
+		System.out.println("\tPOPL %EAX");
+		System.out.println("\tCMPL $0, %EAX");
+		System.out.printf("\tJE  rot_%02d\n", pRot.peek());
+	} 
+	exp { // caso true
+		System.out.printf("\tJMP rot_%02d\n", (int)pRot.peek()+1); // pula pro fim
+		System.out.printf("rot_%02d:\n", pRot.peek()); // rotulo para o 'else'
+	} 
+	':' exp %prec '?' { // caso fake
+		System.out.printf("rot_%02d:\n", (int)pRot.peek() + 1); // fim 
+		pRot.pop();
 	}
 	;
 
