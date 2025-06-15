@@ -1,10 +1,10 @@
-	
+
 %{
   import java.io.*;
   import java.util.ArrayList;
   import java.util.Stack;
 %}
- 
+
 
 %token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, IF, ELSE, WHILE
 %token READ, WRITE
@@ -157,7 +157,7 @@ cmd : 	exp	';' {
 			pRot.pop();
 			pLoop.pop();
 		} ';'
-		
+
 	| FOR '(' expOuVazio { // init
 		int rotCond = proxRot;
 		int rotCorpo = proxRot + 1;
@@ -211,7 +211,7 @@ expOuVazio: exp {
 	;
 
 condOuVazio: exp 
-	| /* vazio */ { System.out.println("\tPUSHL $1"); // caso expressao vazia, coloca 1 pra sempre ser true }
+	| /* vazio */ { System.out.println("\tPUSHL $1"); } // caso expressao vazia, coloca 1 pra sempre ser true }
 
 exp :  NUM  { System.out.println("\tPUSHL $"+$1); } 
     |  TRUE  { System.out.println("\tPUSHL $1"); } 
@@ -281,8 +281,8 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 	}
 
 	// ?: operador condicional 
-	| exp '?' { // cond (ja na pilha)                             
-		int rotFalse = proxRot;  
+	| exp '?' { // cond (ja na pilha)
+		int rotFalse = proxRot;
 		int rotEnd   = rotFalse + 1;
 		pRot.push(rotFalse); 
 		proxRot += 2;
