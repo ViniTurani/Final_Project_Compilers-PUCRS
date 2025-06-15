@@ -1,4 +1,3 @@
-
 %{
   import java.io.*;
   import java.util.ArrayList;
@@ -191,7 +190,7 @@ cmd : 	exp	';' {
 	| CONTINUE ';' { geraContinue(); }
 	;
      
-     
+
 restoIf : ELSE  {
 		System.out.printf("\tJMP rot_%02d\n", (int)pRot.peek()+1);
 		System.out.printf("rot_%02d:\n",pRot.peek());
@@ -448,7 +447,7 @@ public void geraContinue() {
 
 
 private void geraInicio() {
-	System.out.println(".text\n\n#\tKristen Karsburg Arguello - 22103087\n# Ramiro Nilson Barros - <matricula>\n# Vinícius Conte Turani - <matricula>\n\n"); 
+	System.out.println(".text\n\n#Kristen Karsburg Arguello - 22103087\n# Ramiro Nilson Barros - 2221111632\n# Vinícius Conte Turani - 22106859\n\n"); 
 	System.out.println(".GLOBL _start\n\n");  
 }
 
