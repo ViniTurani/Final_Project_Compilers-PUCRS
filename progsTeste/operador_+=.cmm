@@ -1,10 +1,10 @@
 
-int a, b;
+int a;
+int b;
 
-int main() {
+void main() {
     a = 2;
     b = 3;
     a += b + 1;
     write ("a 6 = ", a, ", b 3 = ", b, "\n");
-    return 0;
 }

@@ -1,7 +1,9 @@
 
-int a, b, c;
+int a ;
+int b ;
+int c;
 
-int main() {
+void main() {
     a = 5;
     b = 10;
     c = 15;
@@ -12,5 +14,5 @@ int main() {
         write ("Condição falsa\n");
     }
 
-    return 0;
+
 }

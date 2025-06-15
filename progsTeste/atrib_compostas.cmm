@@ -1,6 +1,9 @@
-int a, b, c, d;
+int a;
+int b;
+int c;
+int d;
 
-int main() {
+void main() {
     a = 5;
     b = 3;
     c = 2;
@@ -12,5 +15,4 @@ int main() {
     write("c 1 =", c);
     write("d 1 =", d);
 
-    return 0;
 }

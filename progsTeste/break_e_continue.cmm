@@ -1,6 +1,7 @@
-int i, j;
+int i;
+int j;
 
-int main() {
+void main() {
     for (i = 0; i < 5; i++) {
         for (j = 0; j < 5; j++) {
             if (i == 2) {
@@ -16,6 +17,3 @@ int main() {
             write("\n");
         }
     }
-
-    return 0;
-}

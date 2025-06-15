@@ -1,8 +1,9 @@
 
 
-int x, y;
+int x;
+int y;
 
-int main() {
+void main() {
     x = 5;
     y = x++ + ++x;
     write("x 6 = ", x, ", y 11 = ", y, "\n");
@@ -11,5 +12,4 @@ int main() {
     y = --x + x--;
     write("x 3 = ", x, ", y 8 = ", y, "\n");
 
-    return 0;
 }

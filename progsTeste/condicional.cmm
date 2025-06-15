@@ -1,7 +1,9 @@
 
-int a, b, c;
+int a;
+int b;
+int c;
 
-int main() {
+void main() {
     a = 10;
     b = 20;
     c = 30;
@@ -11,5 +13,4 @@ int main() {
     write("b 20 =", b);
     write("c 30 =", c);
 
-    return 0;
 }

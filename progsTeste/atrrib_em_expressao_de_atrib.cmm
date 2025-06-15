@@ -1,11 +1,13 @@
 
 
-int a, b, c;
+int a;
+int b;
+int c;
 
-int main() {
+void main() {
     a = (b = (c = 10));
     write("a 10 = ", a, "\n");
     write("b 10 = ", b, "\n");
     write("c 10 = ", c, "\n");
-    return 0;
+    
 }
