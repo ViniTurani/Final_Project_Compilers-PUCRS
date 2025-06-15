@@ -9,9 +9,9 @@ void main() {
     c = 15;
 
     if ((a < b) && (b < c)) {
-        write ("Condição verdadeira\n");
+        write ("Condição verdadeira");
     } else {
-        write ("Condição falsa\n");
+        write ("Condição falsa");
     }
 
 

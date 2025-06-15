@@ -6,10 +6,12 @@ int y;
 void main() {
     x = 5;
     y = x++ + ++x;
-    write("x 6 = ", x, ", y 11 = ", y, "\n");
+    write("x 6 = ", x);
+    write("y 11 = ", y)
 
     x = 5;
     y = --x + x--;
-    write("x 3 = ", x, ", y 8 = ", y, "\n");
+    write("x 3 = ", x);
+    write("y 8 = ", y)
 
 }

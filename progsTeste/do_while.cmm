@@ -3,7 +3,7 @@ int i;
 void main() {
     i = 0;
     do {
-        write ("i = ", i, "\n");
+        write ("i = ", i);
         i++;
     } while (i < 3 && i != 2); 
 

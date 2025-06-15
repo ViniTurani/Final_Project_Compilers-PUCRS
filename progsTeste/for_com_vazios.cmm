@@ -5,11 +5,8 @@ int j;
 void main() {
     for (i = 0; i < 5; ) {
         for (j = 0; j < 3; j++) {
-            write("i = ");
-            write(i);
-            write(", j = ");
-            write(j);
-            write("\n");
+            write("i = ", i);
+            write("j = ", j);
         }
         i++;
     }

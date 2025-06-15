@@ -9,10 +9,7 @@ void main() {
 
     a = ++b * c-- - a++;
     write("a 6 = ", a);
-    write("\n");
     write("b 3 = ", b);
-    write("\n");
     write("c 2 = ", c);
-    write("\n");
 
 }
