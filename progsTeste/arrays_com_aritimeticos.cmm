@@ -1,14 +1,17 @@
 int arr[5];
 int i;
 
-int main() {
+void main() {
     for (i = 0; i < 5; i++) {
         arr[i] = i * i;
     }
 
     for (i = 0; i < 5; i++) {
-        printf("arr[%d] = %d\n", i, arr[i]);
+
+        write("indice: ", i);
+
+        write("valor: ", arr[i]);
     }
 
-    return 0;
+
 }

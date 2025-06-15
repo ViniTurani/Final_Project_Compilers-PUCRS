@@ -9,7 +9,7 @@ void main() {
     c = 2;
     d = 1;
 
-    a = (b += 2) * (c -= 1) + d;
+    a = (b += 2) * (c += 1) + d;
     write("a 15 =", a);
     write("b 5 =", b);
     write("c 1 =", c);
