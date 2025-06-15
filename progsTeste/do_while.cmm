@@ -3,11 +3,11 @@ int i;
 int main() {
     i = 0;
     do {
-        write ("i = %d\n", i);
+        write ("i = ", i, "\n");
         i++;
     } while (i < 3 && i != 2); 
 
-    write ("Esperado: i = 0, i = 1")
+    write ("Esperado: i = 0, i = 1");
 
     return 0;
 }

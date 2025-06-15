@@ -5,6 +5,6 @@ int main() {
     a = 2;
     b = 3;
     a += b + 1;
-    write ("a 6 = %d, b 3 = %d\n", a, b);
+    write ("a 6 = ", a, ", b 3 = ", b, "\n");
     return 0;
 }

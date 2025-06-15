@@ -6,7 +6,12 @@ int main() {
     c = 3;
 
     a = ++b * c-- - a++;
-    write ("a 6 = %d, b 3 = %d, c 2 = %d\n", a, b, c);
+    write("a 6 = ", a);
+    write("\n");
+    write("b 3 = ", b);
+    write("\n");
+    write("c 2 = ", c);
+    write("\n");
 
     return 0;
 }

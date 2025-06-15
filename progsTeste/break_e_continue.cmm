@@ -9,7 +9,11 @@ int main() {
             if (j == 3) {
                 continue;
             }
-            write ("i = %d, j = %d\n", i, j);
+            write("i = ");
+            write(i);
+            write(", j = ");
+            write(j);
+            write("\n");
         }
     }
 

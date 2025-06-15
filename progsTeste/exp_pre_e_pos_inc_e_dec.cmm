@@ -5,11 +5,11 @@ int x, y;
 int main() {
     x = 5;
     y = x++ + ++x;
-    write("x 6 = %d, y 11 = %d\n", x, y); 
+    write("x 6 = ", x, ", y 11 = ", y, "\n");
 
     x = 5;
     y = --x + x--;
-    write("x 3 = %d, y 8 = %d\n", x, y);
+    write("x 3 = ", x, ", y 8 = ", y, "\n");
 
     return 0;
 }

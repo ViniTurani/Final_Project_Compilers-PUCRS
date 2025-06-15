@@ -4,11 +4,11 @@ int i;
 int main() {
     i = 0;
     do {
-        write ("i = %d\n", i);
+        write ("i =", i, "\n");
         i++;
     } while (i < 3);
 
     write ("Fim do loop do-while\n");
-    write ("Esperado: i = 0, i = 1, i = 2\")
+    write ("Esperado: i = 0, i = 1, i = 2\n");
     return 0;
 }
