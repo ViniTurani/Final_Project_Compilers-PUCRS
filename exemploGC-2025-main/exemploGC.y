@@ -43,13 +43,11 @@ mainF : VOID MAIN '(' ')'   {
 		'{' lcmd  { geraFinal(); } '}'
 	; 
 
-/*–– zero or more declarations ––*/
 dList
   : /* empty */
   | dList decl
   ;
 
-/*–– declaration: either a scalar or an array ––*/
 decl
   : type ID ';'
     {
@@ -62,23 +60,13 @@ decl
     }
   | type ID '[' NUM ']' ';'
     {
-      /* array variable */
       TS_entry nodo = ts.pesquisa($2);
       if (nodo != null)
         yyerror("(sem) lista >" + $2 + "< ja declarada");
       else
-        ts.insert(new TS_entry(
-          $2,
-          Parser.ARRAY,
-          Integer.parseInt($4),  /* length */
-          $1                    /* base type */
-        ));
+        ts.insert(new TS_entry($2, Parser.ARRAY, Integer.parseInt($4), $1));
 
-      System.out.printf(
-        "\t.comm _%s, %d, 4\n",
-        $2,
-        Integer.parseInt($4) * 4
-      );
+      System.out.printf("\t.comm _%s, %d, 4\n", $2, Integer.parseInt($4) * 4);
     }
   ;
 
