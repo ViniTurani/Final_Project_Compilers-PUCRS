@@ -7,7 +7,7 @@ int main() {
     c = 30;
 
     a = (b > c) ? (b - a) : (c + a);
-    printf("a = %d, b = %d, c = %d\n", a, b, c); // Esperado: a = 40, b = 20, c = 30
+    write ("a 40 = %d, b 20 = %d, c 30 = %d\n", a, b, c);
 
     return 0;
 }

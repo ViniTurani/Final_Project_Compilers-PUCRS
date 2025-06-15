@@ -6,7 +6,7 @@ int main() {
     c = 3;
 
     a = ++b * c-- - a++;
-    printf("a = %d, b = %d, c = %d\n", a, b, c); // Esperado: a = 6, b = 3, c = 2
+    write ("a 6 = %d, b 3 = %d, c 2 = %d\n", a, b, c);
 
     return 0;
 }

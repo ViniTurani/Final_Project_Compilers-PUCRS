@@ -7,9 +7,9 @@ int main() {
     c = 15;
 
     if ((a < b) && (b < c)) {
-        printf("Condição verdadeira\n");
+        write ("Condição verdadeira\n");
     } else {
-        printf("Condição falsa\n");
+        write ("Condição falsa\n");
     }
 
     return 0;

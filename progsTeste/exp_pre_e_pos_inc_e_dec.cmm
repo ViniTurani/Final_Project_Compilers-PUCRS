@@ -5,11 +5,11 @@ int x, y;
 int main() {
     x = 5;
     y = x++ + ++x;
-    printf("x = %d, y = %d\n", x, y); // Esperado: x = 7, y = 11
+    write("x 6 = %d, y 11 = %d\n", x, y); 
 
     x = 5;
     y = --x + x--;
-    printf("x = %d, y = %d\n", x, y); // Esperado: x = 3, y = 8
+    write("x 3 = %d, y 8 = %d\n", x, y);
 
     return 0;
 }

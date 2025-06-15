@@ -9,7 +9,7 @@ int main() {
             if (j == 3) {
                 continue;
             }
-            printf("i = %d, j = %d\n", i, j);
+            write ("i = %d, j = %d\n", i, j);
         }
     }
 
