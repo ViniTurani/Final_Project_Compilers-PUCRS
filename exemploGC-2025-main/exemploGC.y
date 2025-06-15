@@ -143,10 +143,10 @@ cmd : 	exp	';' {
 		System.out.printf("rot_%02d: # corpo do-while\n", rotCorpo);
 	} 
 		cmd WHILE {
-			System.out.println("# terminou o comando `do`, comecando a expressao do while...")
+			System.out.println("# terminou o comando `do`, comecando a expressao do while...");
 			System.out.printf("rot_%02d: # exp do-while\n", pLoop.peek()); //rotCond
 		} '(' exp ')' {
-			System.out.println("\t# terminou a exp do-while em cima, comecando salto condicional...")
+			System.out.println("\t# terminou a exp do-while em cima, comecando salto condicional...");
 			System.out.println("\tPOPL %EAX"); // pega o valor de exp deixado no topo da pilha
 			System.out.println("\tCMPL $0, %EAX"); // ve se exp se tornou false
 
