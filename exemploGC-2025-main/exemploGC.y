@@ -46,11 +46,19 @@ mainF : VOID MAIN '(' ')'   {
 dList : decl dList | ;
 
 decl : type ID ';' {  
-	TS_entry nodo = ts.pesquisa($2);
-	if (nodo != null) 
-		yyerror("(sem) variavel >" + $2 + "< jah declarada");
-	else ts.insert(new TS_entry($2, $1)); 
-}
+		TS_entry nodo = ts.pesquisa($2);
+		if (nodo != null) 
+			yyerror("(sem) variavel >" + $2 + "< ja declarada");
+		else ts.insert(new TS_entry($2, $1)); 
+	}	
+	| INT ID '[' NUM ']' ';' {
+		TS_entry nodo = ts.pequisa($2);
+		if (nodo != null)
+			yyerror("(sem) lista >" + $2 "< ja declarada");
+		else ts.insert(new TS_entry($2, Parser.ARRAY, Integer.parseInt($4), INT););
+
+		System.out.println("\t.comm _"+$2+", "+(Integer.parseInt($4)*4)+", 4");
+	}
 	;
 
 type : INT    { $$ = INT; }
@@ -299,9 +307,26 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 		System.out.printf("rot_%02d:\n", (int)pRot.peek() + 1); // fim 
 		pRot.pop();
 	}
+
+	// listas
+	| ID '[' exp ']' {
+		System.out.println("\tPOPL %EAX"); // é o indexing
+		System.out.println("\tSHLL $2, %EAX"); // tam do int é *4, faz isso pra compensar //maybe tirar??
+		System.out.println("\tMOVL $_"+$1+", %EDX"); //move o ponteiro do inicio do vetor pra edx
+		System.out.println("\tADDL %EAX, %EDX"); // adiciona no ponteiro pra chegar na posicao indexada
+		System.out.println("\tMOVL (%EDX), %EAX"); //carrega o ponteiro em eax
+		System.out.println("\tPUSHL %EAX"); //coloca na pilha o valor recem indexado
+	}
+	| ID '[' exp ']' '=' exp {
+		System.out.println("\tPOPL %EAX"); // a = valor que vai ser atribuido
+		System.out.println("\tPOPL %EBX"); // b = indice para indexar o array
+		System.out.println("\tSHLL $2, %EBX"); // tam do int é *4, faz isso pra compensar 
+		System.out.println("\tMOVL $_"+$1+", %EDX"); //move o ponteiro do inicio do vetor pra edx
+		System.out.println("\tADDL %EBX, %EDX"); // endereco real do valor indexado
+		System.out.println("\tMOVL %EAX, (%EDX)"); // move o valor que vai ser atribuido para o ponteiro
+		System.out.println("\tPUSHL %EAX"); // deixa o valor na pilha
+	}
 	;
-
-
 %%
 
 private Yylex lexer;
@@ -358,7 +383,7 @@ public static void main(String args[]) throws IOException {
 		// yyparser.listarTS();
 	} else {
 		// interactive mode
-		System.out.println("\n\tFormato: java Parser entrada.cmm >entrada.s\n");
+		System.out.println("\n\tFormato: java Parser entrada.cmm > entrada.s\n");
 	}
 }
 				
@@ -447,7 +472,7 @@ public void geraContinue() {
 
 
 private void geraInicio() {
-	System.out.println(".text\n\n#Kristen Karsburg Arguello - 22103087\n# Ramiro Nilson Barros - 2221111632\n# Vinícius Conte Turani - 22106859\n\n"); 
+	System.out.println(".text\n\n# Kristen Karsburg Arguello - 22103087\n# Ramiro Nilson Barros - 2221111632\n# Vinícius Conte Turani - 22106859\n\n"); 
 	System.out.println(".GLOBL _start\n\n");  
 }
 
