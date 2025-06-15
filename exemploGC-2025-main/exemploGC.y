@@ -70,7 +70,6 @@ decl
     }
   ;
 
-/*–– types ––*/
 type
   : INT    { $$ = INT; }
   | FLOAT  { $$ = FLOAT; }

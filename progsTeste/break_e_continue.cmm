@@ -10,10 +10,8 @@ void main() {
             if (j == 3) {
                 continue;
             }
-            write("i = ");
-            write(i);
-            write(", j = ");
-            write(j);
-            write("\n");
+            write("i = ", i);
+            write("j = ", j);
         }
     }
+}
