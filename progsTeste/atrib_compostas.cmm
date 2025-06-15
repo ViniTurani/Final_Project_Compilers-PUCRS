@@ -7,7 +7,10 @@ int main() {
     d = 1;
 
     a = (b += 2) * (c -= 1) + d;
-    write ("a 15 = %d, b 5 = %d, c 1 = %d, d 1 = %d\n", a, b, c, d);
+    write("a 15 = %d\n", a);
+    write("b 5 = %d\n", b);
+    write("c 1 = %d\n", c);
+    write("d 1 = %d\n", d);
 
     return 0;
 }
