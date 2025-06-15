@@ -1,0 +1,17 @@
+int i, j;
+
+int main() {
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (i == 2) {
+                break;
+            }
+            if (j == 3) {
+                continue;
+            }
+            printf("i = %d, j = %d\n", i, j);
+        }
+    }
+
+    return 0;
+}

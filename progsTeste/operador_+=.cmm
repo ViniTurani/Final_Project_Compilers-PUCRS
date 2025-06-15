@@ -1,0 +1,10 @@
+
+int a, b;
+
+int main() {
+    a = 2;
+    b = 3;
+    a += b + 1;
+    printf("a = %d, b = %d\n", a, b); // Esperado: a = 6, b = 3
+    return 0;
+}

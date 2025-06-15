@@ -1,0 +1,15 @@
+
+
+int x, y;
+
+int main() {
+    x = 5;
+    y = x++ + ++x;
+    printf("x = %d, y = %d\n", x, y); // Esperado: x = 7, y = 11
+
+    x = 5;
+    y = --x + x--;
+    printf("x = %d, y = %d\n", x, y); // Esperado: x = 3, y = 8
+
+    return 0;
+}
