@@ -17,6 +17,7 @@
 %token DO
 %token BREAK, CONTINUE
 %token FOR
+%token RETURN
 
 %right '=' PLUSEQ
 %right '?' ':' // prec menor que OR e maior que =
@@ -35,7 +36,22 @@
 
 %%
 
-prog : { geraInicio(); } dList mainF { geraAreaDados(); geraAreaLiterais(); } ;
+prog
+  : { geraInicio(); }
+    globalList mainF
+    { geraAreaDados(); geraAreaLiterais(); }
+  ;
+
+globalList
+  : /* vazio */
+  | globalList globalDecl
+  ;
+
+globalDecl
+  : decl          /* continua aceitando declarações globais de variáveis */
+  | funDecl       /* nova: declaração de função */
+  ;
+
 
 mainF : VOID MAIN '(' ')'   { 
 		System.out.println("_start:"); 
@@ -56,7 +72,7 @@ decl
       if (nodo != null)
         yyerror("(sem) variavel >" + $2 + "< ja declarada");
       else
-        ts.insert(new TS_entry($2, $1));
+        ts.insert(new TS_entry($2, $1, ClasseID.VarGlobal));
     }
   | type ID '[' NUM ']' ';'
     {
@@ -76,11 +92,40 @@ type
   | BOOL   { $$ = BOOL; }
   ;
 
+funDecl
+  : type ID '(' ')' '{'
+      {
+        /* 1. insere o nome da função no escopo global */
+		//ts.insert(new TS_entry($2, $1));
+		ts.insert(new TS_entry($2, $1, ClasseID.Funcao)); 
+        /* 2. gera o label da função */
+        System.out.println("_" + $2 + ":");
+        /* 3. abre um novo escopo para variáveis locais e futuros parâmetros */
+        ts.enterScope();
+      }
+    dList        /* variáveis locais */
+    lcmd         /* comandos */
+    '}'
+      {
+        /* 4. sai do escopo local */
+        ts.exitScope();
+        /* 5. retorna ao chamador */
+        System.out.println("\tRET");
+      }
+  ;
+
 lcmd : lcmd cmd
 	|
 	;
 	   
-cmd : 	exp	';' {  
+cmd : RETURN exp ';'
+      {
+        /* desempilha o valor de retorno em EAX e retorna */
+        System.out.println("\tPOPL %EAX");
+        System.out.println("\tRET");
+      }
+
+	| exp	';' {  
 		System.out.println("\tPOPL %EDX"); // ficou um valor dangling da expressao, com o ponto virgula ele tira o valor da expressao que resultou e sobrou na pilha = nao deixa lixo assim
 	}
 
@@ -206,8 +251,11 @@ cmd : 	exp	';' {
 
 	| BREAK ';' { geraBreak(); }
 	| CONTINUE ';' { geraContinue(); }
-	;
-     
+	| ID '(' ')' {
+		System.out.println("\tCALL _" + $1);
+		System.out.println("\tPUSHL %EAX");
+	}
+	 
 
 restoIf : ELSE  {
 		System.out.printf("\tJMP rot_%02d\n", (int)pRot.peek()+1);
@@ -335,6 +383,10 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 		System.out.println("\tADDL %EBX, %EDX"); // endereco real do valor indexado
 		System.out.println("\tMOVL %EAX, (%EDX)"); // move o valor que vai ser atribuido para o ponteiro
 		System.out.println("\tPUSHL %EAX"); // deixa o valor na pilha
+	}
+	| ID '(' ')' {
+		System.out.println("\tCALL _" + $1);
+		System.out.println("\tPUSHL %EAX");
 	}
 	;
 %%

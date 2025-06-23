@@ -85,6 +85,7 @@ if   { return Parser.IF; }
 else   { return Parser.ELSE; }
 true   { return Parser.TRUE; }
 false   { return Parser.FALSE; }
+"return" { return Parser.RETURN; }
 
 do { return Parser.DO;}
 break { return Parser.BREAK; }
